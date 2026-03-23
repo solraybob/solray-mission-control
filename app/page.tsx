@@ -152,6 +152,165 @@ function Stat({ label, value, sub }: { label: string; value: number | string; su
   );
 }
 
+// ─── PM Office ───────────────────────────────────────────────────────────────
+
+type PMStatus = 'active' | 'ready' | 'partial' | 'not-started';
+
+interface PM {
+  id: string;
+  name: string;
+  project: string;
+  avatar: string;
+  timeOfDay: string;
+  status: PMStatus;
+  task: string;
+}
+
+const PM_ROSTER: PM[] = [
+  { id: 'solray',   name: 'PM Solray',   project: 'Solray AI',    avatar: '🌙', timeOfDay: 'Midnight',    status: 'active',      task: 'Awaiting Lemon Squeezy approval. Backend + frontend live.' },
+  { id: 'bobby',    name: 'PM Bobby',    project: 'Agent Bobby',  avatar: '☀️', timeOfDay: 'High Noon',   status: 'not-started', task: 'Awaiting Solray AI launch before building.' },
+  { id: 'canon',    name: 'PM Canon',    project: 'Solar Canon',  avatar: '📚', timeOfDay: 'Dawn',        status: 'ready',       task: '14 books written. Need sales infrastructure.' },
+  { id: 'dog',      name: 'PM Dog',      project: 'Sol-Ray Dog',  avatar: '🐕', timeOfDay: 'Golden Hour', status: 'not-started', task: 'Needs audience first. Build after content grows.' },
+  { id: 'commerce', name: 'PM Commerce', project: 'Commerce',     avatar: '🛍', timeOfDay: 'Full Sun',    status: 'not-started', task: 'Physical products last. Needs volume.' },
+  { id: 'content',  name: 'PM Content',  project: 'Content',      avatar: '🌅', timeOfDay: 'Sunrise',     status: 'partial',     task: 'X automated 3x/day. Other channels pending.' },
+];
+
+function pmStatusColor(status: PMStatus): string {
+  return status === 'active' ? '#4ade80'
+    : status === 'partial' ? '#e8821a'
+    : status === 'ready' ? '#60a5fa'
+    : '#4b5563';
+}
+
+function pmBorderColor(status: PMStatus): string {
+  return status === 'active' ? '#e8821a'
+    : status === 'partial' ? '#e8821a77'
+    : status === 'ready' ? '#60a5fa55'
+    : '#1f2937';
+}
+
+function pmGlow(status: PMStatus): string {
+  return status === 'active' ? '0 0 18px #e8821a44'
+    : status === 'partial' ? '0 0 10px #e8821a22'
+    : 'none';
+}
+
+function pmStatusLabel(status: PMStatus): string {
+  return status === 'active' ? 'Active'
+    : status === 'partial' ? 'Partial'
+    : status === 'ready' ? 'Ready'
+    : 'Not Started';
+}
+
+function PMOfficeSection() {
+  return (
+    <div style={{ padding: '0 32px 8px' }}>
+      <style>{`
+        @keyframes pmPulse {
+          0%, 100% { opacity: 1; box-shadow: 0 0 18px #e8821a44; }
+          50% { opacity: 0.85; box-shadow: 0 0 28px #e8821a77; }
+        }
+        .pm-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .pm-card:hover { transform: translateY(-4px) !important; box-shadow: 0 8px 32px #e8821a33 !important; }
+      `}</style>
+
+      <h2 style={{
+        fontFamily: "'Cormorant Garamond', serif",
+        fontSize: '1.8rem',
+        color: '#e8821a',
+        margin: '0 0 16px',
+        fontWeight: 600,
+      }}>
+        🏢 PM Office
+      </h2>
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        gap: 16,
+      }}>
+        {PM_ROSTER.map(pm => {
+          const isPulsing = pm.status === 'active' || pm.status === 'partial';
+          return (
+            <div
+              key={pm.id}
+              className="pm-card"
+              style={{
+                background: '#0a1f12',
+                border: `1px solid ${pmBorderColor(pm.status)}`,
+                borderRadius: 12,
+                padding: '18px 20px',
+                boxShadow: pmGlow(pm.status),
+                animation: isPulsing ? 'pmPulse 3s ease-in-out infinite' : 'none',
+                cursor: 'default',
+              }}
+            >
+              {/* Avatar row */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <span style={{ fontSize: '2rem', lineHeight: 1 }}>{pm.avatar}</span>
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  fontSize: '0.72rem',
+                  padding: '3px 9px',
+                  borderRadius: 20,
+                  background: pm.status === 'active' ? '#4ade8022'
+                    : pm.status === 'partial' ? '#e8821a22'
+                    : pm.status === 'ready' ? '#60a5fa22'
+                    : '#1f293755',
+                  border: `1px solid ${pmStatusColor(pm.status)}44`,
+                  color: pmStatusColor(pm.status),
+                }}>
+                  <span style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: '50%',
+                    background: pmStatusColor(pm.status),
+                    display: 'inline-block',
+                    flexShrink: 0,
+                  }} />
+                  {pmStatusLabel(pm.status)}
+                </span>
+              </div>
+
+              {/* Names */}
+              <div style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: '1.15rem',
+                fontWeight: 700,
+                color: '#d4e8da',
+                marginBottom: 2,
+              }}>
+                {pm.name}
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#e8821a', marginBottom: 6, fontWeight: 500 }}>
+                {pm.project}
+              </div>
+
+              {/* Time of day */}
+              <div style={{ fontSize: '0.72rem', color: '#6b8f72', marginBottom: 10 }}>
+                🕐 {pm.timeOfDay}
+              </div>
+
+              {/* Task */}
+              <div style={{
+                fontSize: '0.8rem',
+                color: '#8fada0',
+                lineHeight: 1.4,
+                borderTop: '1px solid #1a3020',
+                paddingTop: 10,
+              }}>
+                {pm.task}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Cron Jobs ────────────────────────────────────────────────────────────────
 
 const CRON_JOBS: CronJob[] = [
@@ -262,6 +421,11 @@ export default function MissionControl() {
             {loading ? 'Refreshing...' : '↻ Refresh'}
           </button>
         </div>
+      </div>
+
+      {/* PM Office */}
+      <div style={{ padding: '24px 0 8px' }}>
+        <PMOfficeSection />
       </div>
 
       {/* Grid */}
