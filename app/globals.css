@@ -3,15 +3,17 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #050f08;
+  --bg: #faf6f0;
   --amber: #e8821a;
-  --amber-dim: #b5611a;
+  --amber-dim: #c9681a;
   --green: #22c55e;
   --red: #ef4444;
-  --card: #0a1a0e;
-  --border: #1a3020;
-  --text: #d4e8da;
-  --muted: #6b8f72;
+  --card: #ffffff;
+  --border: #e8d5b8;
+  --text: #1a1008;
+  --muted: #7a6a5a;
+  --section-bg: #fff8f0;
+  --section-bg-alt: #fffdf8;
 }
 
 * {

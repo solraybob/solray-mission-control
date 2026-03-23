@@ -49,7 +49,7 @@ interface MemoryData {
 
 interface CronJob {
   name: string;
-  schedule: string; // cron expression
+  schedule: string;
   label: string;
   tz: string;
 }
@@ -57,7 +57,6 @@ interface CronJob {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function nextCronFire(cronExpr: string, tz: string): string {
-  // Simple: parse "min hour * * *" expressions
   const parts = cronExpr.split(' ');
   if (parts.length < 5) return 'Unknown';
   const minute = parseInt(parts[0]);
@@ -73,7 +72,6 @@ function nextCronFire(cronExpr: string, tz: string): string {
     target.setDate(target.getDate() + 1);
   }
 
-  // Format as "Today HH:MM" or "Tomorrow HH:MM"
   const diffMs = target.getTime() - madridNow.getTime();
   const diffH = Math.floor(diffMs / 3600000);
   const diffM = Math.floor((diffMs % 3600000) / 60000);
@@ -104,10 +102,11 @@ function formatTs(ts: string): string {
 function Card({ title, children, icon }: { title: string; children: React.ReactNode; icon?: string }) {
   return (
     <div style={{
-      background: '#0a1a0e',
-      border: '1px solid #1a3020',
+      background: '#ffffff',
+      border: '1px solid #e8d5b8',
       borderRadius: '12px',
       padding: '20px',
+      boxShadow: '0 2px 12px rgba(232, 130, 26, 0.08), 0 1px 4px rgba(26, 16, 8, 0.06)',
     }}>
       <h2 style={{
         fontFamily: "'Cormorant Garamond', serif",
@@ -125,7 +124,7 @@ function Card({ title, children, icon }: { title: string; children: React.ReactN
 }
 
 function StatusDot({ status }: { status: 'up' | 'down' | 'loading' }) {
-  const color = status === 'up' ? '#22c55e' : status === 'down' ? '#ef4444' : '#6b8f72';
+  const color = status === 'up' ? '#22c55e' : status === 'down' ? '#ef4444' : '#c8b89a';
   return (
     <span style={{
       display: 'inline-block',
@@ -133,7 +132,7 @@ function StatusDot({ status }: { status: 'up' | 'down' | 'loading' }) {
       height: 10,
       borderRadius: '50%',
       background: color,
-      boxShadow: status === 'up' ? '0 0 6px #22c55e88' : undefined,
+      boxShadow: status === 'up' ? '0 0 6px rgba(34, 197, 94, 0.5)' : undefined,
       marginRight: 8,
       flexShrink: 0,
     }} />
@@ -143,10 +142,10 @@ function StatusDot({ status }: { status: 'up' | 'down' | 'loading' }) {
 function Stat({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
   return (
     <div style={{ marginBottom: 12 }}>
-      <div style={{ fontSize: '0.75rem', color: '#6b8f72', marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: '1.6rem', fontFamily: "'Cormorant Garamond', serif", color: '#d4e8da', fontWeight: 600 }}>
+      <div style={{ fontSize: '0.75rem', color: '#7a6a5a', marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: '1.6rem', fontFamily: "'Cormorant Garamond', serif", color: '#1a1008', fontWeight: 600 }}>
         {value}
-        {sub && <span style={{ fontSize: '0.8rem', color: '#6b8f72', marginLeft: 6 }}>{sub}</span>}
+        {sub && <span style={{ fontSize: '0.8rem', color: '#7a6a5a', marginLeft: 6 }}>{sub}</span>}
       </div>
     </div>
   );
@@ -176,23 +175,25 @@ const PM_ROSTER: PM[] = [
 ];
 
 function pmStatusColor(status: PMStatus): string {
-  return status === 'active' ? '#4ade80'
-    : status === 'partial' ? '#e8821a'
+  return status === 'active' ? '#e8821a'
+    : status === 'partial' ? '#c9681a'
     : status === 'ready' ? '#60a5fa'
-    : '#4b5563';
+    : '#c8b89a';
 }
 
 function pmBorderColor(status: PMStatus): string {
   return status === 'active' ? '#e8821a'
-    : status === 'partial' ? '#e8821a77'
+    : status === 'partial' ? '#c9681a88'
     : status === 'ready' ? '#60a5fa55'
-    : '#1f2937';
+    : '#e8d5b8';
 }
 
-function pmGlow(status: PMStatus): string {
-  return status === 'active' ? '0 0 18px #e8821a44'
-    : status === 'partial' ? '0 0 10px #e8821a22'
-    : 'none';
+function pmShadow(status: PMStatus): string {
+  return status === 'active'
+    ? '0 4px 20px rgba(232, 130, 26, 0.2), 0 2px 8px rgba(232, 130, 26, 0.12)'
+    : status === 'partial'
+    ? '0 4px 16px rgba(201, 104, 26, 0.12)'
+    : '0 2px 8px rgba(26, 16, 8, 0.06)';
 }
 
 function pmStatusLabel(status: PMStatus): string {
@@ -207,17 +208,23 @@ function PMOfficeSection() {
     <div style={{ padding: '0 32px 8px' }}>
       <style>{`
         @keyframes pmPulse {
-          0%, 100% { opacity: 1; box-shadow: 0 0 18px #e8821a44; }
-          50% { opacity: 0.85; box-shadow: 0 0 28px #e8821a77; }
+          0%, 100% { box-shadow: 0 4px 20px rgba(232, 130, 26, 0.2), 0 2px 8px rgba(232, 130, 26, 0.12); }
+          50% { box-shadow: 0 6px 28px rgba(232, 130, 26, 0.35), 0 3px 12px rgba(232, 130, 26, 0.2); }
+        }
+        @keyframes pmPulsePartial {
+          0%, 100% { box-shadow: 0 4px 16px rgba(201, 104, 26, 0.12); }
+          50% { box-shadow: 0 6px 22px rgba(201, 104, 26, 0.22); }
         }
         .pm-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .pm-card:hover { transform: translateY(-4px) !important; box-shadow: 0 8px 32px #e8821a33 !important; }
+        .pm-card:hover { transform: translateY(-4px) !important; }
+        .pm-card-active { animation: pmPulse 3s ease-in-out infinite; }
+        .pm-card-partial { animation: pmPulsePartial 3s ease-in-out infinite; }
       `}</style>
 
       <h2 style={{
         fontFamily: "'Cormorant Garamond', serif",
         fontSize: '1.8rem',
-        color: '#e8821a',
+        color: '#1a1008',
         margin: '0 0 16px',
         fontWeight: 600,
       }}>
@@ -230,18 +237,20 @@ function PMOfficeSection() {
         gap: 16,
       }}>
         {PM_ROSTER.map(pm => {
-          const isPulsing = pm.status === 'active' || pm.status === 'partial';
+          const animClass = pm.status === 'active' ? 'pm-card pm-card-active'
+            : pm.status === 'partial' ? 'pm-card pm-card-partial'
+            : 'pm-card';
           return (
             <div
               key={pm.id}
-              className="pm-card"
+              className={animClass}
               style={{
-                background: '#0a1f12',
+                background: pm.status === 'active' ? '#fffbf5' : '#ffffff',
                 border: `1px solid ${pmBorderColor(pm.status)}`,
+                borderLeft: pm.status === 'active' ? `3px solid #e8821a` : `1px solid ${pmBorderColor(pm.status)}`,
                 borderRadius: 12,
                 padding: '18px 20px',
-                boxShadow: pmGlow(pm.status),
-                animation: isPulsing ? 'pmPulse 3s ease-in-out infinite' : 'none',
+                boxShadow: pmShadow(pm.status),
                 cursor: 'default',
               }}
             >
@@ -255,10 +264,10 @@ function PMOfficeSection() {
                   fontSize: '0.72rem',
                   padding: '3px 9px',
                   borderRadius: 20,
-                  background: pm.status === 'active' ? '#4ade8022'
-                    : pm.status === 'partial' ? '#e8821a22'
-                    : pm.status === 'ready' ? '#60a5fa22'
-                    : '#1f293755',
+                  background: pm.status === 'active' ? 'rgba(232, 130, 26, 0.12)'
+                    : pm.status === 'partial' ? 'rgba(201, 104, 26, 0.1)'
+                    : pm.status === 'ready' ? 'rgba(96, 165, 250, 0.1)'
+                    : 'rgba(200, 184, 154, 0.2)',
                   border: `1px solid ${pmStatusColor(pm.status)}44`,
                   color: pmStatusColor(pm.status),
                 }}>
@@ -279,7 +288,7 @@ function PMOfficeSection() {
                 fontFamily: "'Cormorant Garamond', serif",
                 fontSize: '1.15rem',
                 fontWeight: 700,
-                color: '#d4e8da',
+                color: '#1a1008',
                 marginBottom: 2,
               }}>
                 {pm.name}
@@ -289,16 +298,16 @@ function PMOfficeSection() {
               </div>
 
               {/* Time of day */}
-              <div style={{ fontSize: '0.72rem', color: '#6b8f72', marginBottom: 10 }}>
+              <div style={{ fontSize: '0.72rem', color: '#7a6a5a', marginBottom: 10 }}>
                 🕐 {pm.timeOfDay}
               </div>
 
               {/* Task */}
               <div style={{
                 fontSize: '0.8rem',
-                color: '#8fada0',
+                color: '#7a6a5a',
                 lineHeight: 1.4,
-                borderTop: '1px solid #1a3020',
+                borderTop: '1px solid #e8d5b8',
                 paddingTop: 10,
               }}>
                 {pm.task}
@@ -367,39 +376,50 @@ export default function MissionControl() {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#050f08',
-      color: '#d4e8da',
+      background: '#faf6f0',
+      color: '#1a1008',
       fontFamily: "'Inter', sans-serif",
       padding: '0 0 60px',
     }}>
-      {/* Header */}
+
+      {/* Header — newspaper masthead style */}
       <div style={{
-        borderBottom: '1px solid #1a3020',
-        padding: '24px 32px',
+        background: 'linear-gradient(135deg, #e8821a 0%, #c9681a 50%, #b5561a 100%)',
+        padding: '28px 32px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         gap: 12,
+        boxShadow: '0 4px 20px rgba(232, 130, 26, 0.3)',
       }}>
         <div>
           <h1 style={{
             fontFamily: "'Cormorant Garamond', serif",
             fontSize: 'clamp(2rem, 5vw, 3.5rem)',
             fontWeight: 700,
-            color: '#e8821a',
+            color: '#1a1008',
             margin: 0,
             lineHeight: 1,
+            letterSpacing: '-0.5px',
           }}>
             ☀ Mission Control
           </h1>
-          <div style={{ fontSize: '0.8rem', color: '#6b8f72', marginTop: 4 }}>
-            Solray AI CEO Operations
+          <div style={{
+            fontSize: '0.85rem',
+            color: 'rgba(26, 16, 8, 0.7)',
+            marginTop: 6,
+            fontFamily: "'Inter', sans-serif",
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            fontWeight: 500,
+          }}>
+            Sol-Ray Bob Empire · Operations Command
           </div>
         </div>
         <div style={{ textAlign: 'right' }}>
           {lastUpdated && (
-            <div style={{ fontSize: '0.8rem', color: '#6b8f72' }}>
+            <div style={{ fontSize: '0.8rem', color: 'rgba(26, 16, 8, 0.65)' }}>
               Last updated: {lastUpdated.toLocaleTimeString()}
             </div>
           )}
@@ -409,13 +429,14 @@ export default function MissionControl() {
             style={{
               marginTop: 6,
               padding: '6px 16px',
-              background: '#e8821a22',
-              border: '1px solid #e8821a44',
+              background: 'rgba(26, 16, 8, 0.15)',
+              border: '1px solid rgba(26, 16, 8, 0.3)',
               borderRadius: 6,
-              color: '#e8821a',
+              color: '#1a1008',
               cursor: loading ? 'wait' : 'pointer',
               fontSize: '0.8rem',
               fontFamily: "'Inter', sans-serif",
+              fontWeight: 500,
             }}
           >
             {loading ? 'Refreshing...' : '↻ Refresh'}
@@ -423,8 +444,14 @@ export default function MissionControl() {
         </div>
       </div>
 
+      {/* Thin gold rule below header */}
+      <div style={{
+        height: 3,
+        background: 'linear-gradient(90deg, #c9681a, #e8821a, #c9681a)',
+      }} />
+
       {/* PM Office */}
-      <div style={{ padding: '24px 0 8px' }}>
+      <div style={{ padding: '28px 0 8px', background: '#fff8f0' }}>
         <PMOfficeSection />
       </div>
 
@@ -434,12 +461,13 @@ export default function MissionControl() {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
         gap: 20,
+        background: '#fffdf8',
       }}>
 
         {/* 1. System Health */}
         <Card title="System Health" icon="🔴">
           {!health ? (
-            <div style={{ color: '#6b8f72', fontSize: '0.85rem' }}>Checking services...</div>
+            <div style={{ color: '#7a6a5a', fontSize: '0.85rem' }}>Checking services...</div>
           ) : (
             <div>
               {health.map(svc => (
@@ -448,11 +476,11 @@ export default function MissionControl() {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   padding: '8px 0',
-                  borderBottom: '1px solid #1a3020',
+                  borderBottom: '1px solid #e8d5b8',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <StatusDot status={svc.status as 'up' | 'down'} />
-                    <span style={{ fontSize: '0.9rem' }}>{svc.name}</span>
+                    <span style={{ fontSize: '0.9rem', color: '#1a1008' }}>{svc.name}</span>
                   </div>
                   <span style={{
                     fontSize: '0.75rem',
@@ -469,7 +497,7 @@ export default function MissionControl() {
         {/* 2. Users & Growth */}
         <Card title="Users & Growth" icon="📈">
           {!dashboard ? (
-            <div style={{ color: '#6b8f72', fontSize: '0.85rem' }}>Loading...</div>
+            <div style={{ color: '#7a6a5a', fontSize: '0.85rem' }}>Loading...</div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
               <Stat label="Total Users" value={dashboard.users?.total ?? 0} />
@@ -483,17 +511,17 @@ export default function MissionControl() {
         {/* 3. X / Twitter Posts */}
         <Card title="Recent X Posts" icon="✖">
           {!tweets ? (
-            <div style={{ color: '#6b8f72', fontSize: '0.85rem' }}>Loading...</div>
+            <div style={{ color: '#7a6a5a', fontSize: '0.85rem' }}>Loading...</div>
           ) : tweets.length === 0 ? (
-            <div style={{ color: '#6b8f72', fontSize: '0.85rem' }}>No recent posts found.</div>
+            <div style={{ color: '#7a6a5a', fontSize: '0.85rem' }}>No recent posts found.</div>
           ) : (
             <div>
               {tweets.slice(0, 5).map((tweet, i) => (
                 <div key={tweet.id || i} style={{
                   padding: '8px 0',
-                  borderBottom: i < tweets.length - 1 ? '1px solid #1a3020' : 'none',
+                  borderBottom: i < tweets.length - 1 ? '1px solid #e8d5b8' : 'none',
                 }}>
-                  <div style={{ fontSize: '0.75rem', color: '#6b8f72', marginBottom: 3 }}>
+                  <div style={{ fontSize: '0.75rem', color: '#7a6a5a', marginBottom: 3 }}>
                     {formatTs(tweet.timestamp)}
                     {tweet.id && (
                       <a
@@ -506,7 +534,7 @@ export default function MissionControl() {
                       </a>
                     )}
                   </div>
-                  <div style={{ fontSize: '0.85rem', lineHeight: 1.4 }}>
+                  <div style={{ fontSize: '0.85rem', lineHeight: 1.4, color: '#1a1008' }}>
                     {tweet.text.length > 140 ? tweet.text.slice(0, 140) + '…' : tweet.text}
                   </div>
                 </div>
@@ -518,15 +546,15 @@ export default function MissionControl() {
         {/* 4. Email Queue */}
         <Card title="Email Queue" icon="📧">
           {!emailStats ? (
-            <div style={{ color: '#6b8f72', fontSize: '0.85rem' }}>Loading...</div>
+            <div style={{ color: '#7a6a5a', fontSize: '0.85rem' }}>Loading...</div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
               <Stat label="Total in Queue" value={emailStats.total_in_queue} />
               <Stat label="Pending Day-3" value={emailStats.pending_day3} />
               <Stat label="Pending Day-7" value={emailStats.pending_day7} />
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#6b8f72', marginBottom: 2 }}>Last Sent</div>
-                <div style={{ fontSize: '0.85rem', color: '#d4e8da' }}>
+                <div style={{ fontSize: '0.75rem', color: '#7a6a5a', marginBottom: 2 }}>Last Sent</div>
+                <div style={{ fontSize: '0.85rem', color: '#1a1008' }}>
                   {emailStats.last_email_sent ? formatTs(emailStats.last_email_sent) : 'None yet'}
                 </div>
               </div>
@@ -537,34 +565,34 @@ export default function MissionControl() {
         {/* 5. DNS Status */}
         <Card title="DNS Status" icon="🌐">
           {!dns ? (
-            <div style={{ color: '#6b8f72', fontSize: '0.85rem' }}>Checking DNS...</div>
+            <div style={{ color: '#7a6a5a', fontSize: '0.85rem' }}>Checking DNS...</div>
           ) : (
             <div>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
                 <StatusDot status={dns.propagated ? 'up' : 'down'} />
-                <span style={{ fontWeight: 600, marginRight: 8 }}>solray.ai</span>
+                <span style={{ fontWeight: 600, marginRight: 8, color: '#1a1008' }}>solray.ai</span>
                 <span style={{
                   padding: '2px 10px',
                   borderRadius: 20,
                   fontSize: '0.75rem',
-                  background: dns.propagated ? '#22c55e22' : '#ef444422',
+                  background: dns.propagated ? '#22c55e18' : '#ef444418',
                   color: dns.propagated ? '#22c55e' : '#ef4444',
                   border: `1px solid ${dns.propagated ? '#22c55e44' : '#ef444444'}`,
                 }}>
                   {dns.status}
                 </span>
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#6b8f72', marginBottom: 4 }}>Nameservers</div>
+              <div style={{ fontSize: '0.8rem', color: '#7a6a5a', marginBottom: 4 }}>Nameservers</div>
               {dns.nameservers.slice(0, 4).map(ns => (
-                <div key={ns} style={{ fontSize: '0.8rem', color: '#d4e8da', marginBottom: 2 }}>
+                <div key={ns} style={{ fontSize: '0.8rem', color: '#1a1008', marginBottom: 2 }}>
                   → {ns}
                 </div>
               ))}
               {dns.aRecords.length > 0 && (
                 <>
-                  <div style={{ fontSize: '0.8rem', color: '#6b8f72', marginTop: 8, marginBottom: 4 }}>A Records</div>
+                  <div style={{ fontSize: '0.8rem', color: '#7a6a5a', marginTop: 8, marginBottom: 4 }}>A Records</div>
                   {dns.aRecords.map(ip => (
-                    <div key={ip} style={{ fontSize: '0.8rem', color: '#d4e8da', marginBottom: 2 }}>
+                    <div key={ip} style={{ fontSize: '0.8rem', color: '#1a1008', marginBottom: 2 }}>
                       → {ip}
                     </div>
                   ))}
@@ -583,13 +611,13 @@ export default function MissionControl() {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '8px 0',
-                borderBottom: '1px solid #1a3020',
+                borderBottom: '1px solid #e8d5b8',
               }}>
-                <div style={{ fontSize: '0.85rem' }}>
+                <div style={{ fontSize: '0.85rem', color: '#1a1008' }}>
                   <span style={{ marginRight: 6 }}>{job.label}</span>
                   {job.name}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#6b8f72', textAlign: 'right' }}>
+                <div style={{ fontSize: '0.75rem', color: '#7a6a5a', textAlign: 'right' }}>
                   {nextCronFire(job.schedule, job.tz)}
                 </div>
               </div>
@@ -600,16 +628,16 @@ export default function MissionControl() {
         {/* 7. Recent Memory */}
         <Card title="Recent Memory" icon="🧠">
           {!memory ? (
-            <div style={{ color: '#6b8f72', fontSize: '0.85rem' }}>Loading...</div>
+            <div style={{ color: '#7a6a5a', fontSize: '0.85rem' }}>Loading...</div>
           ) : (
             <div>
               {memory.date && (
-                <div style={{ fontSize: '0.75rem', color: '#6b8f72', marginBottom: 10 }}>
+                <div style={{ fontSize: '0.75rem', color: '#7a6a5a', marginBottom: 10 }}>
                   From {memory.date}
                 </div>
               )}
               {memory.entries.length === 0 ? (
-                <div style={{ color: '#6b8f72', fontSize: '0.85rem' }}>No memory entries found.</div>
+                <div style={{ color: '#7a6a5a', fontSize: '0.85rem' }}>No memory entries found.</div>
               ) : (
                 <ul style={{ margin: 0, padding: '0 0 0 16px' }}>
                   {memory.entries.map((entry, i) => (
@@ -617,7 +645,7 @@ export default function MissionControl() {
                       fontSize: '0.85rem',
                       lineHeight: 1.5,
                       marginBottom: 8,
-                      color: '#d4e8da',
+                      color: '#1a1008',
                     }}>
                       {entry}
                     </li>
@@ -634,10 +662,11 @@ export default function MissionControl() {
       <div style={{
         textAlign: 'center',
         padding: '0 32px',
-        color: '#6b8f72',
+        color: '#7a6a5a',
         fontSize: '0.75rem',
+        background: '#fffdf8',
       }}>
-        Auto-refreshes every 60s · Solray AI Mission Control
+        Auto-refreshes every 60s · Sol-Ray Bob Empire · Mission Control
       </div>
     </div>
   );
